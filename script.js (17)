@@ -1,0 +1,780 @@
+/* =========================================================
+   TEACHER'S DAY — STUDENT CARD SYSTEM
+   ========================================================= */
+
+
+/* =========================================================
+   FIREBASE
+   ========================================================= */
+
+import {
+    createStudentCard,
+    updateStudentCard,
+    deleteStudentCard,
+    watchStudentCards
+} from "./firebase.js";
+
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const createCardButton =
+    document.getElementById("create-card-button");
+
+const cancelCardButton =
+    document.getElementById("cancel-card-button");
+
+const cardFormWrapper =
+    document.getElementById("card-form-wrapper");
+
+const studentCardForm =
+    document.getElementById("student-card-form");
+
+const cardsGrid =
+    document.getElementById("student-cards-grid");
+
+const cardStatus =
+    document.getElementById("card-status");
+
+
+const nameInput =
+    document.getElementById("student-name");
+
+const arrivalInput =
+    document.getElementById("arrival-time");
+
+const presentInput =
+    document.getElementById("present-description");
+
+const messageInput =
+    document.getElementById("student-message");
+
+
+/* =========================================================
+   LOCAL IDENTITY
+   ========================================================= */
+
+/*
+   Each browser receives its own anonymous identity.
+
+   This lets the website remember which card belongs
+   to that browser without requiring students to log in.
+*/
+
+const OWNER_STORAGE_KEY =
+    "teacher-day-owner-id";
+
+const OWN_CARD_STORAGE_KEY =
+    "teacher-day-own-card-id";
+
+
+function createOwnerId() {
+
+    if (
+        window.crypto &&
+        typeof window.crypto.randomUUID === "function"
+    ) {
+        return window.crypto.randomUUID();
+    }
+
+    return (
+        "owner-" +
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .slice(2)
+    );
+}
+
+
+let ownerId =
+    localStorage.getItem(OWNER_STORAGE_KEY);
+
+
+if (!ownerId) {
+
+    ownerId = createOwnerId();
+
+    localStorage.setItem(
+        OWNER_STORAGE_KEY,
+        ownerId
+    );
+}
+
+
+let ownCardId =
+    localStorage.getItem(
+        OWN_CARD_STORAGE_KEY
+    );
+
+
+/* =========================================================
+   EDITING STATE
+   ========================================================= */
+
+let editingCardId = null;
+
+
+/* =========================================================
+   FORM OPEN / CLOSE
+   ========================================================= */
+
+function openCardForm(card = null) {
+
+    cardFormWrapper.hidden = false;
+
+    editingCardId =
+        card ? card.id : null;
+
+
+    if (card) {
+
+        nameInput.value =
+            card.name || "";
+
+        arrivalInput.value =
+            card.arrivalTime || "";
+
+        presentInput.value =
+            card.present || "";
+
+        messageInput.value =
+            card.message || "";
+
+        createCardButton.textContent =
+            "✏️ EDIT MY CARD";
+
+    } else {
+
+        studentCardForm.reset();
+
+        createCardButton.textContent =
+            "✨ CREATE MY CARD";
+
+    }
+
+
+    cardFormWrapper.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+
+    setTimeout(() => {
+        nameInput.focus();
+    }, 350);
+}
+
+
+function closeCardForm() {
+
+    cardFormWrapper.hidden = true;
+
+    editingCardId = null;
+
+    studentCardForm.reset();
+
+    createCardButton.textContent =
+        "✨ CREATE MY CARD";
+}
+
+
+/* =========================================================
+   CREATE BUTTON
+   ========================================================= */
+
+createCardButton.addEventListener(
+    "click",
+    () => {
+
+        if (ownCardId && !editingCardId) {
+
+            cardStatus.textContent =
+                "You already have a card. You can edit your existing card below.";
+
+            const ownCard =
+                document.querySelector(
+                    `[data-card-id="${ownCardId}"]`
+                );
+
+            if (ownCard) {
+
+                ownCard.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+            }
+
+            return;
+        }
+
+        openCardForm();
+    }
+);
+
+
+/* =========================================================
+   CANCEL
+   ========================================================= */
+
+cancelCardButton.addEventListener(
+    "click",
+    closeCardForm
+);
+
+
+/* =========================================================
+   FORM SUBMISSION
+   ========================================================= */
+
+studentCardForm.addEventListener(
+    "submit",
+    async event => {
+
+        event.preventDefault();
+
+
+        const cardData = {
+
+            name:
+                nameInput.value.trim(),
+
+            arrivalTime:
+                arrivalInput.value.trim(),
+
+            present:
+                presentInput.value.trim(),
+
+            message:
+                messageInput.value.trim(),
+
+            ownerId
+
+        };
+
+
+        if (
+            !cardData.name ||
+            !cardData.arrivalTime ||
+            !cardData.present ||
+            !cardData.message
+        ) {
+
+            cardStatus.textContent =
+                "Please complete every field.";
+
+            return;
+        }
+
+
+        const submitButton =
+            studentCardForm.querySelector(
+                'button[type="submit"]'
+            );
+
+
+        const originalText =
+            submitButton.textContent;
+
+
+        submitButton.disabled = true;
+
+        submitButton.textContent =
+            editingCardId
+                ? "SAVING CHANGES..."
+                : "CREATING CARD...";
+
+
+        try {
+
+            if (editingCardId) {
+
+                await updateStudentCard(
+                    editingCardId,
+                    cardData
+                );
+
+                cardStatus.textContent =
+                    "Your card has been updated successfully.";
+
+            } else {
+
+                /*
+                   Extra browser-side protection against
+                   accidentally creating a second card.
+                */
+
+                if (ownCardId) {
+
+                    throw new Error(
+                        "You already have a card."
+                    );
+                }
+
+
+                const newCardId =
+                    await createStudentCard(
+                        cardData
+                    );
+
+
+                ownCardId = newCardId;
+
+                localStorage.setItem(
+                    OWN_CARD_STORAGE_KEY,
+                    newCardId
+                );
+
+
+                cardStatus.textContent =
+                    "Your celebration card has been created!";
+            }
+
+
+            closeCardForm();
+
+        } catch (error) {
+
+            console.error(
+                "Card operation failed:",
+                error
+            );
+
+
+            cardStatus.textContent =
+                error.message ===
+                "You already have a card."
+                    ? "You already have a card."
+                    : "Something went wrong. Please try again.";
+
+        } finally {
+
+            submitButton.disabled = false;
+
+            submitButton.textContent =
+                originalText;
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ESCAPE KEY
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape" &&
+            !cardFormWrapper.hidden
+        ) {
+            closeCardForm();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/* =========================================================
+   RENDER CARDS
+   ========================================================= */
+
+function renderCards(cards) {
+
+    if (!cards.length) {
+
+        cardsGrid.innerHTML = `
+            <div class="cards-loading">
+                <span>🌹</span>
+                <p>
+                    No celebration cards yet.
+                    Be the first to create one!
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    /*
+       Remember an existing own card even if the
+       browser was refreshed.
+    */
+
+    const detectedOwnCard =
+        cards.find(
+            card =>
+                card.ownerId === ownerId
+        );
+
+
+    if (detectedOwnCard) {
+
+        ownCardId =
+            detectedOwnCard.id;
+
+        localStorage.setItem(
+            OWN_CARD_STORAGE_KEY,
+            ownCardId
+        );
+
+    } else {
+
+        /*
+           If our stored card was deleted,
+           allow the browser to create a new one.
+        */
+
+        if (ownCardId) {
+
+            const stillExists =
+                cards.some(
+                    card =>
+                        card.id === ownCardId
+                );
+
+            if (!stillExists) {
+
+                ownCardId = null;
+
+                localStorage.removeItem(
+                    OWN_CARD_STORAGE_KEY
+                );
+            }
+        }
+    }
+
+
+    cardsGrid.innerHTML =
+        cards
+            .map(createCardHTML)
+            .join("");
+
+
+    attachCardActions(cards);
+}
+
+
+/* =========================================================
+   CARD HTML
+   ========================================================= */
+
+function createCardHTML(card) {
+
+    const isOwnCard =
+        card.ownerId === ownerId;
+
+
+    return `
+        <article
+            class="student-card"
+            data-card-id="${escapeHTML(card.id)}"
+        >
+
+            <div class="student-card-header">
+
+                <h3 class="student-card-name">
+                    ${escapeHTML(card.name)}
+                </h3>
+
+                ${
+                    isOwnCard
+                        ? `
+                            <span class="owner-badge">
+                                MY CARD
+                            </span>
+                        `
+                        : ""
+                }
+
+            </div>
+
+
+            <div class="student-card-detail">
+
+                <small>
+                    🕔 WHEN I AM ARRIVING
+                </small>
+
+                <p>
+                    ${escapeHTML(card.arrivalTime)}
+                </p>
+
+            </div>
+
+
+            <div class="student-card-detail">
+
+                <small>
+                    🎁 WHAT MY PRESENT WOULD LOOK LIKE
+                </small>
+
+                <p>
+                    ${escapeHTML(card.present)}
+                </p>
+
+            </div>
+
+
+            <div
+                class="student-card-detail student-card-message"
+            >
+
+                <small>
+                    💌 MY WISH / MESSAGE FOR ANIRBAN SIR
+                </small>
+
+                <p>
+                    ${escapeHTML(card.message)}
+                </p>
+
+            </div>
+
+
+            ${
+                isOwnCard
+                    ? `
+                        <div class="student-card-actions">
+
+                            <button
+                                type="button"
+                                class="card-edit-button"
+                                data-action="edit"
+                                data-card-id="${escapeHTML(card.id)}"
+                            >
+                                ✏️ EDIT
+                            </button>
+
+                            <button
+                                type="button"
+                                class="card-delete-button"
+                                data-action="delete"
+                                data-card-id="${escapeHTML(card.id)}"
+                            >
+                                🗑️ DELETE
+                            </button>
+
+                        </div>
+                    `
+                    : ""
+            }
+
+        </article>
+    `;
+}
+
+
+/* =========================================================
+   CARD ACTIONS
+   ========================================================= */
+
+function attachCardActions(cards) {
+
+    const actionButtons =
+        cardsGrid.querySelectorAll(
+            "[data-action]"
+        );
+
+
+    actionButtons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            async () => {
+
+                const cardId =
+                    button.dataset.cardId;
+
+                const card =
+                    cards.find(
+                        item =>
+                            item.id === cardId
+                    );
+
+
+                if (!card) return;
+
+
+                /*
+                   Extra ownership check.
+                */
+
+                if (
+                    card.ownerId !== ownerId
+                ) {
+
+                    cardStatus.textContent =
+                        "You can only edit your own card.";
+
+                    return;
+                }
+
+
+                if (
+                    button.dataset.action ===
+                    "edit"
+                ) {
+
+                    openCardForm(card);
+
+                    return;
+                }
+
+
+                if (
+                    button.dataset.action ===
+                    "delete"
+                ) {
+
+                    const confirmed =
+                        window.confirm(
+                            "Delete your Teacher's Day card?"
+                        );
+
+
+                    if (!confirmed) return;
+
+
+                    button.disabled = true;
+
+
+                    try {
+
+                        await deleteStudentCard(
+                            cardId
+                        );
+
+
+                        if (
+                            ownCardId === cardId
+                        ) {
+
+                            ownCardId = null;
+
+                            localStorage.removeItem(
+                                OWN_CARD_STORAGE_KEY
+                            );
+                        }
+
+
+                        cardStatus.textContent =
+                            "Your card has been deleted.";
+
+                    } catch (error) {
+
+                        console.error(
+                            "Could not delete card:",
+                            error
+                        );
+
+                        cardStatus.textContent =
+                            "Could not delete your card. Please try again.";
+
+                    } finally {
+
+                        button.disabled = false;
+                    }
+                }
+
+            }
+        );
+
+    });
+}
+
+
+/* =========================================================
+   REAL-TIME FIRESTORE
+   ========================================================= */
+
+watchStudentCards(
+    cards => {
+
+        renderCards(cards);
+
+        /*
+           If there is already an own card,
+           update the main button text.
+        */
+
+        if (ownCardId) {
+
+            createCardButton.textContent =
+                "✏️ EDIT MY CARD";
+
+        } else {
+
+            createCardButton.textContent =
+                "✨ CREATE MY CARD";
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIAL STATUS
+   ========================================================= */
+
+cardStatus.textContent =
+    "Each person may create one card.";
+    
+    // ========================================
+// BACKGROUND MUSIC SYSTEM
+// ========================================
+
+const backgroundMusic = document.getElementById("background-music");
+const musicToggle = document.getElementById("music-toggle");
+
+let musicPlaying = false;
+
+musicToggle.addEventListener("click", async () => {
+    try {
+        if (musicPlaying) {
+            backgroundMusic.pause();
+            musicPlaying = false;
+
+            musicToggle.textContent = "🎵";
+            musicToggle.classList.remove("music-playing");
+            musicToggle.setAttribute("aria-label", "Turn music on");
+        } else {
+            await backgroundMusic.play();
+
+            musicPlaying = true;
+
+            musicToggle.textContent = "🔊";
+            musicToggle.classList.add("music-playing");
+            musicToggle.setAttribute("aria-label", "Turn music off");
+        }
+    } catch (error) {
+        console.error("Music could not be played:", error);
+    }
+});
+
+backgroundMusic.addEventListener("ended", () => {
+    musicPlaying = false;
+    musicToggle.textContent = "🎵";
+    musicToggle.classList.remove("music-playing");
+});
