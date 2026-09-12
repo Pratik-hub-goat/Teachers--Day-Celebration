@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Teacher's Day Celebration — Anirban Sir</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <meta
+        name="description"
+        content="Teacher's Day Celebration for Anirban Deb Sir at Deb Institute."
+    >
+</head>
+
+<body>
+
+    <div class="page-background"></div>
+
+    <main class="celebration-app">
+
+        <!-- ================= HERO ================= -->
+
+        <section class="hero-section">
+
+            <div class="hero-glow"></div>
+
+            <div class="cake-stage">
+
+                <div class="cake-3d" aria-label="Chocolate cake">
+                    <div class="cake-top">
+                        <span class="cake-candle candle-one"></span>
+                        <span class="cake-candle candle-two"></span>
+                        <span class="cake-candle candle-three"></span>
+                    </div>
+
+                    <div class="cake-layer cake-layer-top"></div>
+                    <div class="cake-layer cake-layer-middle"></div>
+                    <div class="cake-layer cake-layer-bottom"></div>
+
+                    <div class="cake-cream cream-one"></div>
+                    <div class="cake-cream cream-two"></div>
+                    <div class="cake-cream cream-three"></div>
+                </div>
+
+            </div>
+
+            <p class="hero-eyebrow">
+                A Celebration of Gratitude &amp; Respect
+            </p>
+
+            <h1 class="hero-title">
+                TEACHER'S DAY
+                <span>CELEBRATION</span>
+            </h1>
+
+            <div class="hero-teacher">
+                <span>FOR</span>
+                <strong>ANIRBAN SIR</strong>
+            </div>
+
+            <div class="hero-details">
+
+                <div class="detail-item">
+                    <span class="detail-icon">📍</span>
+                    <div>
+                        <small>VENUE</small>
+                        <strong>Deb Institute</strong>
+                        <em>Near Beltali Club</em>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-icon">📅</span>
+                    <div>
+                        <small>DATE</small>
+                        <strong>13 September 2026</strong>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-icon">🕔</span>
+                    <div>
+                        <small>TIME</small>
+                        <strong>5:00 – 5:30 PM</strong>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-icon">₹</span>
+                    <div>
+                        <small>CELEBRATION FUND</small>
+                        <strong>₹50 – ₹100</strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="scroll-hint">
+                <span>SCROLL TO CELEBRATE</span>
+                <b>↓</b>
+            </div>
+
+        </section>
+
+
+        <!-- ================= WISH ================= -->
+
+        <section class="wish-section">
+
+            <div class="section-heading">
+                <span>WITH GRATITUDE</span>
+                <h2>🌹 OUR WISH</h2>
+            </div>
+
+            <div class="wish-card">
+
+                <div class="wish-mark">“</div>
+
+                <p>
+                    Celebrating Teacher's Day with our favourite Sir,
+                    Anirban Deb, at Deb Institute, with sincere gratitude
+                    for his guidance, encouragement, patience, and
+                    continuous support. This celebration is a small
+                    expression of our collective respect and appreciation
+                    for everything he does for his students, and a
+                    heartfelt wish for many more years of happiness,
+                    success, and inspiration ahead.
+                </p>
+
+                <div class="wish-mark wish-mark-end">”</div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CARDS ================= -->
+
+        <section class="cards-section" id="cards">
+
+            <div class="section-heading">
+
+                <span>OUR COLLECTIVE CELEBRATION</span>
+
+                <h2>💌 STUDENT CARDS</h2>
+
+                <p>
+                    Everyone can create one personal card and share
+                    their arrival time, present idea, and heartfelt
+                    message for Anirban Sir.
+                </p>
+
+            </div>
+
+
+            <div class="card-action-area">
+
+                <button
+                    type="button"
+                    id="create-card-button"
+                    class="primary-button"
+                >
+                    ✨ CREATE MY CARD
+                </button>
+
+                <p id="card-status" class="card-status">
+                    Each person may create one card.
+                </p>
+
+            </div>
+
+
+            <!-- Card creation form -->
+
+            <div
+                id="card-form-wrapper"
+                class="card-form-wrapper"
+                hidden
+            >
+
+                <form id="student-card-form" class="student-card-form">
+
+                    <div class="form-heading">
+                        <span>YOUR PERSONAL CARD</span>
+                        <h3>Make a Wish for Anirban Sir</h3>
+                    </div>
+
+                    <label>
+                        Your Name
+                        <input
+                            id="student-name"
+                            name="studentName"
+                            type="text"
+                            placeholder="Enter your name"
+                            maxlength="50"
+                            required
+                        >
+                    </label>
+
+                    <label>
+                        🕔 When I am arriving
+                        <input
+                            id="arrival-time"
+                            name="arrivalTime"
+                            type="text"
+                            placeholder="Example: 5:15 PM"
+                            maxlength="30"
+                            required
+                        >
+                    </label>
+
+                    <label>
+                        🎁 What my present would look like
+                        <input
+                            id="present-description"
+                            name="present"
+                            type="text"
+                            placeholder="Describe your present..."
+                            maxlength="120"
+                            required
+                        >
+                    </label>
+
+                    <label>
+                        💌 My Wish / Message for Anirban Sir
+                        <textarea
+                            id="student-message"
+                            name="message"
+                            placeholder="Write your heartfelt message..."
+                            maxlength="500"
+                            rows="5"
+                            required
+                        ></textarea>
+                    </label>
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="primary-button"
+                        >
+                            🌹 SAVE MY CARD
+                        </button>
+
+                        <button
+                            type="button"
+                            id="cancel-card-button"
+                            class="secondary-button"
+                        >
+                            CANCEL
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- All student cards appear here -->
+
+            <div
+                id="student-cards-grid"
+                class="student-cards-grid"
+            >
+
+                <div class="cards-loading">
+                    <span>✦</span>
+                    <p>Loading celebration cards...</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= IMPORTANT MESSAGE ================= -->
+
+        <section class="important-section" id="important-message">
+
+            <div class="important-box">
+
+                <div class="important-top">
+
+                    <span class="important-icon">🌹</span>
+
+                    <div>
+                        <small>PLEASE READ CAREFULLY</small>
+                        <h2>IMPORTANT MESSAGE</h2>
+                    </div>
+
+                </div>
+
+                <div class="important-content">
+
+                    <p>
+                        Everyone must arrive between
+                        <strong>5:00–5:30 PM</strong> at
+                        <strong>Deb Institute</strong>.
+                        No lateness will be allowed for the celebration,
+                        as we will also be carrying out the decoration
+                        work alongside it. Unity must be preserved,
+                        and discipline must be maintained until all the
+                        planning for the celebration is complete.
+                    </p>
+
+                    <p>
+                        📌 Everyone must contribute
+                        <strong>₹50–₹100</strong> towards the celebration
+                        and cake purchase. Those who are willing to
+                        celebrate are requested to pay this fund for
+                        purchasing the necessary resources for the
+                        celebration.
+                    </p>
+
+                    <p class="important-ending">
+                        That's it. Thanks.
+                    </p>
+
+                    <p class="important-signature">
+                        ~ Pratik
+                    </p>
+
+                    <div class="no-firecracker">
+
+                        <span>🚫</span>
+
+                        <div>
+                            <strong>
+                                NO FIRE CRACKERS (BAJI) ARE ALLOWED
+                            </strong>
+
+                            <small>
+                                Fire crackers are strictly restricted
+                                during the celebration.
+                            </small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= FOOTER ================= -->
+
+        <footer class="site-footer">
+
+            <div class="footer-line"></div>
+
+            <p>
+                A small celebration, a sincere expression of gratitude.
+            </p>
+
+            <small>
+                Made by Pratik Roy
+            </small>
+
+        </footer>
+
+    </main>
+
+
+    <!-- Firebase + application -->
+
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="script.js"></script>
+
+<!-- Music System -->
+<audio id="background-music" loop preload="metadata">
+    <source src="./music/celebration.mp3" type="audio/mpeg">
+</audio>
+
+<button id="music-toggle" class="music-toggle" type="button" aria-label="Turn music on or off">
+    🎵
+</button>
+
+</body>
+</html>
+
+
+
